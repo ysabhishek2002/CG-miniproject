@@ -1,0 +1,134 @@
+#include<iostream>
+#include "GL/freeglut.h"
+#include "GL/glut.h"
+#include<windows.h>
+
+using namespace std;
+int length = 100;
+int* arr = (int*)malloc(sizeof(int) * length);
+int* output = (int*)malloc(sizeof(int) * length);
+
+void renderFunction(int* a)
+{
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 1.0, 1.0);
+	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+	float l = (float)length;
+	float widthAdder = 1 / l;
+	for (int i = 0; i < length; ++i)
+	{
+		glBegin(GL_POLYGON); //cout << arr[i] << " ";
+		float arrayIndexHeightRatio = 2 * (a[i] + 1) / l; // + 1 so value of 0 has height of 1
+		float widthIndexAdder = 2 * i / l;
+		float leftX = -1 + widthIndexAdder;
+		float rightX = leftX + widthAdder;
+		float bottomY = -1;
+		float topY = bottomY + arrayIndexHeightRatio;
+
+		glColor4f(1, 0, 1, 0); // bottom left
+		glVertex2f(leftX, bottomY);
+		
+		glColor4f(0, 0, 1, 1); // bottom right
+		glVertex2f(rightX, bottomY);
+		
+		glColor4f(1, 1, 0, 0); // top right
+		glVertex2f(rightX, topY);
+		
+		glColor4f(1, 0.5, 1, 1); // top left
+		glVertex2f(leftX, topY);
+		glEnd();
+		glMatrixMode(GL_MODELVIEW);
+	}
+	glFlush();
+}
+
+
+void swap(int* xp, int* yp)
+{
+	int temp = *xp;
+	*xp = *yp;
+	*yp = temp;
+}
+
+
+int getNextGap(int gap) // To find gap between elements
+{
+	gap = (gap * 10) / 20; // Shrink gap by Shrink factor
+	if (gap < 1)
+		return 1;
+	return gap;
+}
+
+void combSort() // Function to sort a[0..n-1] using Comb Sort
+{
+	int gap = length; // Initialize gap
+	bool swapped = true; // Initialize swapped as true to make sure that loop runs
+	while (gap != 1 || swapped == true) // Keep running while gap is more than 1 and last iteration caused a swap
+	{
+		gap = getNextGap(gap); // Find next gap
+		swapped = false; // Initialize swapped as false so that we can check if swap happened or not
+		for (int i = 0; i < length - gap; i++) // Compare all elements with current gap
+		{
+			if (arr[i] > arr[i + gap])
+			{
+				swap(arr[i], arr[i + gap]);
+				renderFunction(arr);
+				Sleep(70);
+				swapped = true;
+			}
+		}
+	}
+}
+
+/* Main method - main entry point of application
+the freeglut library does the window creation work for us,
+regardless of the platform. */
+int main(int argc, char** argv)
+{
+	int a;
+	cout << "---------------------------------------------------------------------------------------------" << endl;
+	cout << endl;
+	cout << "		WELCOME TO COMB SORT ALGORITHM VISUALIZATION                            " << endl;
+	cout << endl;
+	cout << "				   VVCE                                           " << endl;
+	cout << endl;
+	cout << "	    		U CAN ADD UR NAMES HERE                                                " << endl;
+	cout << endl;
+	cout << "----------------------------------------------------------------------------------------------" << endl;
+	cout << endl;
+	glMatrixMode(GL_MODELVIEW);
+
+	cout << ("Enter your Choice : \n 0 for random sorting \n 1 for user input sorting\n");
+	cin >> a;
+	if (a == 0)
+	{
+		for (int i = 0; i < length; i++) {
+			arr[i] = rand() % 100;
+			cout << arr[i] << " ";
+		}
+	}
+	else
+	{
+		cout << ("Enter the size of array : ");
+		cin >> length;
+		for (int i = 0; i < length; i++)
+		{
+			cin >> arr[i];
+		}
+	}
+	cout << endl;
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE);
+	
+	glutInitWindowSize(500, 500);
+	glutInitWindowPosition(0, 0);
+	glutCreateWindow("Comb Sort");
+	renderFunction(arr);
+	Sleep(1300);
+	//glutDisplayFunc(renderFunction);
+	combSort();
+	for (int i = 0; i < length; i++) cout << arr[i] << " ";
+	glutMainLoop();
+	return 0;
+}
